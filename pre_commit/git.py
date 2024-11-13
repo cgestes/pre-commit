@@ -6,9 +6,7 @@ import sys
 from collections.abc import Mapping
 
 from pre_commit.errors import FatalError
-from pre_commit.util import CalledProcessError
-from pre_commit.util import cmd_output
-from pre_commit.util import cmd_output_b
+from pre_commit.util import CalledProcessError, cmd_output, cmd_output_b
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +51,8 @@ def get_root() -> str:
     # underlying volumes for Windows drives mapped with SUBST.  We use
     # "rev-parse --show-cdup" to get the appropriate path, but must perform
     # an extra check to see if we are in the .git directory.
+    root = os.path.abspath(cmd_output('sl', 'root')[1].strip())
+    return root
     try:
         root = os.path.abspath(
             cmd_output('git', 'rev-parse', '--show-cdup')[1].strip(),
@@ -152,6 +152,7 @@ def intent_to_add_files() -> list[str]:
 
 
 def get_all_files() -> list[str]:
+    return cmd_output("sl", "status", "-carmdn")[1].splitlines()
     return zsplit(cmd_output('git', 'ls-files', '-z')[1])
 
 
